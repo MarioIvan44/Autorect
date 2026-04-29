@@ -349,6 +349,19 @@ export const validateProductPayload = (payload = {}, options = { partial: false 
 		else data.description = description;
 	}
 
+	if (payload.sku !== undefined) {
+		const sku = normalizeString(payload.sku);
+		// SKU corto, alfanumérico permitido (sin espacios extremos)
+		if (sku && !hasMaxLength(sku, 50)) errors.push("sku no puede superar 50 caracteres");
+		else data.sku = sku;
+	}
+
+	if (payload.supplier !== undefined) {
+		const supplier = normalizeString(payload.supplier);
+		if (supplier && !hasMaxLength(supplier, 100)) errors.push("supplier no puede superar 100 caracteres");
+		else data.supplier = supplier;
+	}
+
 	if (payload.price !== undefined) {
 		if (!isNonNegativeNumber(payload.price)) {
 			errors.push("price debe ser un número mayor o igual a 0");
