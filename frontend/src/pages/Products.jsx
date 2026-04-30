@@ -107,7 +107,6 @@ const formatPrice = (value) =>
   }).format(Number(value) || 0);
 const validateProductForm = (form) => {
   const errors = {};
-
   if (!form.name.trim()) {
     errors.name = "El nombre es requerido";
   }
@@ -119,14 +118,11 @@ const validateProductForm = (form) => {
   if (!form.status) {
     errors.status = "El estado es requerido";
   }
-
   return errors;
 };
-
 function Products() {
   const [products, setProducts] = useState([]);
   const { API, logout, getStoredToken } = useAuth(); // Obtener la URL de la API, logout y helper para token desde el hook de autenticación
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [expandedRowId, setExpandedRowId] = useState(null);
@@ -142,12 +138,10 @@ function Products() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [sortBy, setSortBy] = useState("name-asc");
-
   const fetchProducts = useCallback(async () => {
     // Función segura para obtener productos desde la API
     setLoading(true);
     setError("");
-
     try {
       // Obtener token desde storage (coincide con AuthProvider)
       const token =
@@ -158,28 +152,23 @@ function Products() {
         await logout({ reason: "expired", callApi: false });
         return;
       }
-
       // Configurar los encabezados de la solicitud con el token de acceso
       const headers = {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       };
-
       // Realizar solicitudes simultáneas para obtener usuarios y productos
       const productsRes = await fetch(`${API}/products`, {
         headers,
         credentials: "include",
       });
-
       // Si alguna de las respuestas indica que el token ha expirado o es inválido, cerrar sesión localmente sin llamar a la API de logout
       if (productsRes.status === 401) {
         await logout({ reason: "expired", callApi: false });
         return;
       }
-
       // Intentar parsear las respuestas como JSON, manejando cualquier error
       const productsPayload = await productsRes.json().catch(() => ({}));
-
       // Validar que la respuesta de productos sea exitosa
       if (!productsRes.ok) {
         throw new Error(
@@ -187,7 +176,6 @@ function Products() {
             "No se pudieron cargar los datos de los productos",
         );
       }
-
       // Aceptar diferentes estructuras: { data: [...] } o [...]
       let productsData = [];
       if (Array.isArray(productsPayload)) {
@@ -197,7 +185,6 @@ function Products() {
       } else if (Array.isArray(productsPayload.products)) {
         productsData = productsPayload.products;
       }
-
       const parsePrice = (raw) => {
         if (raw == null) return 0;
         // MongoDB Decimal128 serialization: { '$numberDecimal': '1299' }
@@ -208,7 +195,6 @@ function Products() {
         const v = Number(raw);
         return Number.isFinite(v) ? v : 0;
       };
-
       productsData = productsData.map((p, idx) => ({
         _id: p._id || null,
         id: p.id || p._id,
@@ -220,7 +206,6 @@ function Products() {
         sku: p.sku || "N/A",
         supplier: p.supplier || "N/A",
       }));
-
       setProducts(productsData);
     } catch (requestError) {
       setError(requestError.message || "Error al cargar productos");
@@ -228,17 +213,13 @@ function Products() {
       setLoading(false);
     }
   }, [API, logout]);
-
   // Efecto para cargar los datos de los productos cuando el componente se monta o cuando la función de obtención de datos cambia
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
-
   const rowsPerPage = 10;
-
   const filteredProducts = useMemo(() => {
     const term = searchText.trim().toLowerCase();
-
     const matches = products.filter((item) => {
       const bySearch =
         !term ||
@@ -317,11 +298,9 @@ function Products() {
   const toggleExpandRow = (rowId) => {
     setExpandedRowId((prev) => (prev === rowId ? null : rowId));
   };
-
   const requestDelete = (product) => {
     setDeleteTarget(product);
   };
-
   const confirmDelete = () => {
     if (!deleteTarget) {
       return;
@@ -1127,7 +1106,6 @@ function Products() {
                 />
               </div>
             </div>
-
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-1.5">
                 <Label htmlFor="edit-price">Precio (USD)</Label>
