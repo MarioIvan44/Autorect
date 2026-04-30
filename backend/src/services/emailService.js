@@ -153,10 +153,15 @@ const buildPasswordRecoveryEmailHtml = (verificationCode, otpUrl) => `
 // crea el transporter de nodemailer con las credenciales configuradas
 const createTransporter = (senderEmail, senderPassword) =>
   nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false, // importante
     auth: {
       user: senderEmail,
       pass: senderPassword,
+    },
+    tls: {
+      rejectUnauthorized: false,
     },
   });
 

@@ -362,6 +362,22 @@ export const validateProductPayload = (payload = {}, options = { partial: false 
 		else data.supplier = supplier;
 	}
 
+	if (payload.category !== undefined) {
+		const category = normalizeString(payload.category);
+		if (category && !hasMaxLength(category, 100)) errors.push("category no puede superar 100 caracteres");
+		else data.category = category || undefined;
+	}
+
+	if (payload.status !== undefined) {
+		const status = normalizeString(payload.status).toLowerCase();
+		const allowedStatuses = ["top", "stable", "low"];
+		if (status && !allowedStatuses.includes(status)) {
+			errors.push(`status inválido. Valores permitidos: ${allowedStatuses.join(", ")}`);
+		} else {
+			data.status = status || undefined;
+		}
+	}
+
 	if (payload.price !== undefined) {
 		if (!isNonNegativeNumber(payload.price)) {
 			errors.push("price debe ser un número mayor o igual a 0");

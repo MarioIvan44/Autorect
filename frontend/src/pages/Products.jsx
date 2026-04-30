@@ -412,7 +412,7 @@ function Products() {
           category: createForm.category.trim() || "General",
           stock: Number(createForm.stock) || 0,
           price: Number(createForm.price) || 0,
-          status: createForm.status,
+          status: createForm.status || "stable",
           sku: createForm.sku.trim() || "N/A",
           supplier: createForm.supplier.trim() || "N/A",
         };
@@ -444,7 +444,10 @@ function Products() {
           name: p.name || payloadToSend.name,
           category: p.category || payloadToSend.category,
           stock: Number(p.stock) || payloadToSend.stock,
-          price: typeof p.price === "object" && p.price?.["$numberDecimal"] ? Number(p.price["$numberDecimal"]) : Number(p.price) || payloadToSend.price,
+          price:
+            typeof p.price === "object" && p.price?.["$numberDecimal"]
+              ? Number(p.price["$numberDecimal"])
+              : Number(p.price) || payloadToSend.price,
           status: p.status || payloadToSend.status,
           sku: p.sku || payloadToSend.sku,
           supplier: p.supplier || payloadToSend.supplier,
@@ -466,35 +469,70 @@ function Products() {
 
   const handleEditSubmit = (event) => {
     event.preventDefault();
+
     const errors = validateProductForm(editForm);
     setEditErrors(errors);
-    
-    if (Object.keys(errors).length > 0) {
-      return;
-    }
+    if (Object.keys(errors).length > 0) return;
 
-    setProducts((prev) =>
-      prev.map((item) =>
-        item.id === editForm.id
-          ? {
-              ...item,
-              name: editForm.name.trim(),
-              category: editForm.category.trim() || "General",
-              stock: Number(editForm.stock) || 0,
-              price: Number(editForm.price) || 0,
-              status: editForm.status,
-              sku: editForm.sku.trim() || "N/A",
-              supplier: editForm.supplier.trim() || "N/A",
-            }
-          : item,
-      ),
-    );
+    (async () => {
+      try {
+        const token =
+          localStorage.getItem("accessToken") ||
+          sessionStorage.getItem("accessToken");
 
-    setIsEditOpen(false);
-    setEditErrors({});
-    toast.success("Producto actualizado correctamente");
+        const id = editForm._id || editForm.id;
+
+        const res = await fetch(`${API}/products/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            name: editForm.name,
+            category: editForm.category,
+            stock: Number(editForm.stock),
+            price: Number(editForm.price),
+            status: editForm.status,
+            sku: editForm.sku,
+            supplier: editForm.supplier,
+          }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.message);
+
+        // Normalizar producto devuelto para que el UI lo muestre inmediatamente
+        const returned = data.data || data || {};
+        const normalize = (p) => ({
+          _id: p._id || null,
+          id: p.id || p._id,
+          name: p.name || editForm.name,
+          category: p.category || editForm.category || "General",
+          stock: Number(p.stock) || Number(editForm.stock) || 0,
+          price:
+            typeof p.price === "object" && p.price?.["$numberDecimal"]
+              ? Number(p.price["$numberDecimal"])
+              : Number(p.price) || Number(editForm.price) || 0,
+          status: p.status || editForm.status || "stable",
+          sku: p.sku || editForm.sku,
+          supplier: p.supplier || editForm.supplier,
+        });
+
+        const updatedNormalized = normalize(returned);
+
+        // actualizar UI con el producto normalizado
+        setProducts((prev) => prev.map((p) => ((p._id || p.id) === id ? updatedNormalized : p)));
+
+        setIsEditOpen(false);
+        toast.success("Producto actualizado");
+      } catch (err) {
+        toast.error(err.message);
+      }
+    })();
   };
-
   return (
     <div className="flex h-full min-h-0 flex-col gap-3 pb-3">
       <div className="space-y-3 rounded-[28px] border border-white/8 bg-black/20 px-4 py-4 shadow-[0_16px_45px_rgba(0,0,0,0.18)] backdrop-blur-sm">
