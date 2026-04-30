@@ -8,10 +8,7 @@ import userRoutes from "./src/routes/users.js";
 import registerUsersRoutes from "./src/routes/registerUsers.js";
 import refreshRoutes from "./src/routes/refresh.js";
 import passwordRecoveryRoutes from "./src/routes/passwordRecovery.js";
-
-
 const app = express();
-
 const allowedOrigins = [ // Seagregan orígenes permitidos para CORS, incluyendo la URL del frontend desde variables de entorno o un valor por defecto
 	process.env.FRONTEND_URL,
 	"http://localhost:5173",

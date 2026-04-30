@@ -57,7 +57,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useAuth } from "@/hooks/useAuth"; // Hook personalizado para autenticación
-
 const emptyProductForm = {
   name: "",
   category: "Accesorios",
@@ -67,14 +66,12 @@ const emptyProductForm = {
   sku: "",
   supplier: "",
 };
-
 const statusFilterOptions = [
   { value: "all", label: "Todos los estados" },
   { value: "top", label: "Top" },
   { value: "stable", label: "Estable" },
   { value: "low", label: "Stock bajo" },
 ];
-
 const categoryFilterOptions = [
   { value: "all", label: "Todas las categorias" },
   { value: "accesorios", label: "Accesorios" },
@@ -87,7 +84,6 @@ const categoryFilterOptions = [
   { value: "video", label: "Video" },
   { value: "redes", label: "Redes" },
 ];
-
 const sortOptions = [
   { value: "name-asc", label: "Nombre A-Z" },
   { value: "name-desc", label: "Nombre Z-A" },
@@ -96,23 +92,19 @@ const sortOptions = [
   { value: "stock-desc", label: "Stock mayor" },
   { value: "stock-asc", label: "Stock menor" },
 ];
-
 const statusLabelMap = {
   top: "Top",
   stable: "Estable",
   low: "Bajo",
 };
-
 const badgeCellClassName =
   "inline-flex h-7 min-w-24 justify-center rounded-full px-3 text-center text-xs font-semibold";
-
 const formatPrice = (value) =>
   new Intl.NumberFormat("es-SV", {
     style: "currency",
     currency: "USD",
     maximumFractionDigits: 2,
   }).format(Number(value) || 0);
-
 const validateProductForm = (form) => {
   const errors = {};
 
